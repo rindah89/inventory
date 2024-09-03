@@ -1,10 +1,11 @@
-import { Banknote, ChevronLeft, Home, ShoppingBasket, ShoppingCart, StretchHorizontal } from 'lucide-react'
+import { Banknote, ChevronLeft, Home, ShoppingBasket, ShoppingCart, BaggageClaim, ShoppingBag, Cable, BarChart, BarChart4, FilePlus2 } from 'lucide-react'
 import React from 'react'
 import Link from 'next/link';
+import SubscriptionCard from '../../components/dashboard/SubscriptionCard'
 
 export default function Sidebar() {
   return (
-    <div className='w-56 min-h-screen bg-slate-800 text-slate-50 justify-between'>
+    <div className='w-64 min-h-screen bg-slate-800 text-slate-50 fixed'>
 
         <div className="flex flex-col">
 <div className="flex  items-center bg-slate-950 gap-x-2 py-4 px-2 ">
@@ -13,37 +14,57 @@ export default function Sidebar() {
         </div>
 
 
-<nav className="flex flex-col g-4 p-3">
-    <Link href="" className='flex items-center space-x-2'> 
+<nav className="flex flex-col gap-3 px-3 py-6">
+    <Link href="#" className='flex items-center space-x-2 bg-blue-600 text-slate-50 p-2 rounded-md '> 
     <Home className='w-4 h-4'/>
     <span>Home</span>
     </Link>
 
-    <Link href="" className='flex items-center space-x-2'> 
-    <StretchHorizontal className='w-4 h-4'/>
+    <button className='flex items-center space-x-2 p-2'> 
+    <BaggageClaim className='w-4 h-4'/>
     <span>Inventory</span>
-    </Link>
+    </button>
     
-    <Link href="" className='flex items-center space-x-2'> 
+    <button  className='flex items-center space-x-2 p-2'> 
     <ShoppingBasket className='w-4 h-4'/>
     <span>sales</span>
-    </Link>
-    <Link href="" className='flex items-center space-x-2'> 
-    <Banknote className='w-4 h-4'/>
+    </button>
+
+    <button  className='flex items-center space-x-2 p-2'> 
+    <ShoppingBag className='w-4 h-4'/>
     <span>Purchases</span>
+    </button>
+
+    <Link href="#" className='flex items-center space-x-2 p-2'> 
+    <Cable className='w-4 h-4'/>
+    <span>Integrations</span>
+    </Link>
+
+    <Link href="#" className='flex items-center space-x-2 p-2'> 
+    <BarChart4 className='w-4 h-4'/>
+    <span>Reports</span>
+    </Link>
+
+    <Link href="#" className='flex items-center space-x-2 p-2'> 
+    <FilePlus2 className='w-4 h-4'/>
+    <span>Documents</span>
     </Link>
 </nav>
 
 
 
 
-        <div className="flex flex-col flex-end">
-        <div className="flex  items-center bg-slate-950 py-4 px-2 ">
-    <ChevronLeft/>
-    <span className="font-semibold text-l ">Inventory</span>
-        </div>
-        </div>
+        
     </div>
+
+    <SubscriptionCard/>
+
+    <div className="flex flex-col ">
+        <button className="flex  items-center bg-slate-950 py-4 px-2 justify-center ">
+    <ChevronLeft/>
+        </button>
+        </div>
+
     </div>
   );
 }
