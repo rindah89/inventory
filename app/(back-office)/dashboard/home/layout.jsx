@@ -3,7 +3,7 @@ import HomeNav from "../../../../components/dashboard/HomeNav"
 
 export default function Layout({children}) {
   return (
-    <div className="bg-orange-700">
+    <div>
         <HomeNav/>
         {children}
     </div>

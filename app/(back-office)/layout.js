@@ -4,12 +4,14 @@ import Sidebar from '../../components/dashboard/sidebar';
 
 export default function Layout({children}) {
   return (
-    <div className='flex'>
-       <Sidebar/>
-        <main className='w-full bg-slate-100 mn-h-screen ml-60'>
-           <Header/>
-            {children}
+    <div className='flex h-screen overflow-hidden'>
+      <Sidebar />
+      <div className='flex flex-col flex-grow ml-64'> {/* Add ml-64 to offset the fixed sidebar */}
+        <Header />
+        <main className='flex-grow overflow-auto bg-slate-100 p-6'>
+          {children}
         </main>
+      </div>
     </div>
   );
 }
