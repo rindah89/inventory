@@ -62,8 +62,8 @@ export default function Sidebar() {
         { text: 'Items', href: '/dashboard/inventory' },
         { text: 'Composite Items', href: '#composite-items' },
         { text: 'Item Groups', href: '/dashboard/inventory/item-groups' },
-        { text: 'Price Lists', href: '#price-lists' },
-        { text: 'Inventory Adjustments', href: '#inventory-adjustments' },
+        { text: 'Price Lists', href: '/dashboard/inventory/price-lists' },
+        { text: 'Inventory Adjustments', href: '/dashboard/inventory/inventory-adjustments' },
       ]
     },
     { icon: ShoppingBasket, 

@@ -1,9 +1,10 @@
 import React from 'react'
+import InventoryAdjustments2 from '../../../../../components/dashboard/InventoryAdjustment2'
 
 export default function Adjustments() {
   return (
     <div>
-        <h2>Inventory adjustments</h2>
+        <InventoryAdjustments2/>
     </div>
   )
 }
