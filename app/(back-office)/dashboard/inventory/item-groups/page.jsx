@@ -1,9 +1,13 @@
+'use client'
+import FixedHeaderIG from '../../../../../components/dashboard/FixedHeaderIG'
+import ItemGroups2 from '../../../../../components/dashboard/ItemGroups2'
 import React from 'react'
 
 export default function ItemGroups() {
   return (
     <div>
-        <h2>Item Groups</h2>
+        <FixedHeaderIG/>
+        <ItemGroups2/>
     </div>
   )
 }

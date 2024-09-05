@@ -61,7 +61,7 @@ export default function Sidebar() {
       children: [
         { text: 'Items', href: '/dashboard/inventory' },
         { text: 'Composite Items', href: '#composite-items' },
-        { text: 'Item Groups', href: '#item-groups' },
+        { text: 'Item Groups', href: '/dashboard/inventory/item-groups' },
         { text: 'Price Lists', href: '#price-lists' },
         { text: 'Inventory Adjustments', href: '#inventory-adjustments' },
       ]
