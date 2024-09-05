@@ -8,7 +8,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "../../components/ui/collapsible"
 
 const NavItem = ({ icon: Icon, text, href, isCollapsed, children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +59,7 @@ export default function Sidebar() {
       icon: BaggageClaim, 
       text: 'Inventory', 
       children: [
-        { text: 'Items', href: '#items' },
+        { text: 'Items', href: '/dashboard/inventory' },
         { text: 'Composite Items', href: '#composite-items' },
         { text: 'Item Groups', href: '#item-groups' },
         { text: 'Price Lists', href: '#price-lists' },
