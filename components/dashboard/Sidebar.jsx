@@ -69,8 +69,10 @@ export default function Sidebar() {
     { icon: ShoppingBasket, 
       text: 'Sales',
       children:[
-        { text: 'Customers', href: '#items' },
-        { text: 'Sales Orders', href: '#composite-items' },
+        { text: 'Customers', href: '/dashboard/sales/customers' },
+        { text: 'Retainer Invoices', href: '/dashboard/sales/retainerInvoices' },
+
+        { text: 'Sales Orders', href: '/dashboard/sales/salesOrders' },
         { text: 'Packages', href: '#item-groups' },
         { text: 'Shipments', href: '#price-lists' },
         { text: 'Invoices', href: '#inventory-adjustments' },
