@@ -73,12 +73,12 @@ export default function Sidebar() {
         { text: 'Retainer Invoices', href: '/dashboard/sales/retainerInvoices' },
 
         { text: 'Sales Orders', href: '/dashboard/sales/salesOrders' },
-        { text: 'Packages', href: '#item-groups' },
-        { text: 'Shipments', href: '#price-lists' },
-        { text: 'Invoices', href: '#inventory-adjustments' },
-        { text: 'Payments Received', href: '#inventory-adjustments' },
-        { text: 'Sales Returns', href: '#inventory-adjustments' },
-        { text: 'Credit Notes', href: '#inventory-adjustments' },
+        { text: 'Packages', href: '/dashboard/sales/packages' },
+        { text: 'Shipments', href: '/dashboard/sales/shipments' },
+        { text: 'Invoices', href: '/dashboard/sales/invoices' },
+        { text: 'Payments Received', href: '/dashboard/sales/paymentsReceived' },
+        { text: 'Sales Returns', href: '/dashboard/sales/salesReturns' },
+        { text: 'Credit Notes', href: '/dashboard/sales/creditNotes' },
 
       ] },
     { icon: ShoppingBag,

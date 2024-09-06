@@ -15,6 +15,6 @@ export const metadata = {
 };
 
 export default async function SalesOrdersPage() {
-   
+   const orders = await getSalesOrders()
   return <SalesOrdersTable orders={orders} />;
 }

@@ -35,10 +35,10 @@ const SalesOrdersTable = ({ orders }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredOrders = useMemo(() => {
-    return orders.filter(order => 
-      (statusFilter === "All" || order.status === statusFilter) &&
-      (order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       order.salesOrder.toLowerCase().includes(searchTerm.toLowerCase()))
+    return (orders || []).filter(order => 
+      (statusFilter === "All" || order?.status === statusFilter) &&
+      (order?.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       order?.salesOrder?.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }, [orders, statusFilter, searchTerm]);
 
