@@ -1,4 +1,4 @@
-import ReceivedPaymentsTable from '@/components/ReceivedPaymentsTable';
+import ReceivedPaymentsTable from '../../../../../components/dashboard/ReceivedPaymentsTable';
 
 async function getPayments() {
   // In a real application, this would be an API call or database query

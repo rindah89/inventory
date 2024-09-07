@@ -84,17 +84,16 @@ export default function Sidebar() {
     { icon: ShoppingBag,
        text: 'Purchases',
        children: [
-        { text: 'Vendors', href: '#items' },
+        { text: 'Vendors', href: '/dashboard/purchases/vendors' },
         { text: 'Expenses', href: '#composite-items' },
-        { text: 'Purchase Orders', href: '#item-groups' },
-        { text: 'Bills', href: '#price-lists' },
-        { text: 'Payments Made', href: '#inventory-adjustments' },
-        { text: 'Vendor Credits', href: '#inventory-adjustments' },
+        { text: 'Purchase Orders', href: '/dashboard/purchases/purchaseOrders' },
+        { text: 'Bills', href: '/dashboard/purchases/bills' },
+        { text: 'Payments Made', href: '/dashboard/purchases/paymentsMade' },
+        { text: 'Vendor Credits', href: '/dashboard/purchases/vendorCredits' },
        ] },
        
-    { icon: Cable, text: 'Integrations', href: '#' },
-    { icon: BarChart4, text: 'Reports', href: '#' },
-    { icon: FilePlus2, text: 'Documents', href: '#' },
+    { icon: BarChart4, text: 'Reports', href: '/dashboard/reports' },
+    { icon: FilePlus2, text: 'Documents', href: '/dashboard/documents' },
   ];
 
   return (
