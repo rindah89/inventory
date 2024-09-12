@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
+import { useRouter } from 'next/navigation';
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { UploadDropzone } from "../../app/utils/uploadthing";
 import { CircleHelp, X } from "lucide-react";
 import {
@@ -20,38 +24,94 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 
-const NewItem2 = () => {
-  const [type, setType] = useState("Goods");
-  const [name, setName] = useState("");
-  const [sku, setSku] = useState("");
-  const [unit, setUnit] = useState("");
-  const [returnable, setReturnable] = useState(false);
-  const [images, setImages] = useState([]);
+const itemSchema = z.object({
+  type: z.enum(["Goods", "Service"]),
+  name: z.string().min(1, "Name is required"),
+  sku: z.string().optional(),
+  unit: z.string().min(1, "Unit is required"),
+  returnable: z.boolean(),
+  images: z.array(z.any()).optional(),
+  dimensions: z.object({
+    length: z.string().optional(),
+    width: z.string().optional(),
+    height: z.string().optional(),
+    unit: z.enum(["cm", "in"]).optional(),
+  }),
+  weight: z.object({
+    value: z.string().optional(),
+    unit: z.enum(["kg", "g", "lb", "oz"]).optional(),
+  }),
+  manufacturer: z.string().optional(),
+  brand: z.string().optional(),
+  sellingPrice: z.string().min(1, "Selling price is required"),
+  salesAccount: z.string().min(1, "Sales account is required"),
+  salesDescription: z.string().optional(),
+  salesTax: z.string().optional(),
+  costPrice: z.string().min(1, "Cost price is required"),
+  purchaseAccount: z.string().min(1, "Purchase account is required"),
+  purchaseDescription: z.string().optional(),
+  purchaseTax: z.string().optional(),
+  preferredVendor: z.string().optional(),
+});
 
-  const handleImageUpload = (uploadedFiles) => {
-    setImages((prev) => [...prev, ...uploadedFiles]);
+const NewItem2 = () => {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm({
+    //resolver: zodResolver(itemSchema),
+    defaultValues: {
+      type: "Goods",
+      returnable: false,
+      dimensions: { length: "", width: "", height: "", unit: "" },
+      weight: { value: "", unit: "" },
+    },
+  });
+
+  const onSubmit = async (data) => {
+    console.log("onSubmit function called", data);
+    setIsLoading(true);
+    try {
+      console.log("Sending data to API:", data);
+      // ... rest of your submission logic
+    } catch (error) {
+      console.error('Error saving item:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
-  const handleSave = () => {
-    // Implement save logic here
-    console.log("Saving item...", {
-      type,
-      name,
-      sku,
-      unit,
-      returnable,
-      images,
-    });
-    // You can add API calls or state updates here
+  const handleFormSubmit = (event) => {
+    console.log("Form submit event triggered");
+    event.preventDefault();
+    const formData = watch();
+    console.log("Full form data before submission:", formData);
+    handleSubmit(onSubmit, onError)(event);
+  };
+
+  const handleButtonClick = () => {
+    console.log("Save button clicked");
   };
 
   const handleCancel = () => {
-    // Implement cancel logic here
-    console.log("Cancelling...");
-    // You can add navigation or state reset logic here
+    if (window.confirm("Are you sure you want to cancel? Any unsaved changes will be lost.")) {
+      router.push('/dashboard/inventory');
+    }
   };
+
+  const handleImageUpload = (uploadedFiles) => {
+    setValue('images', [...(watch('images') || []), ...uploadedFiles]);
+  };
+
   return (
-    <>
-      <div className=" max-w-5xl flex flex-col md:flex-row gap-8 mt-2 mr-60 items-center bg-slate-50 px-4 py-2">
+    <form onSubmit={handleFormSubmit}>
+      <div className="max-w-5xl flex flex-col md:flex-row gap-8 mt-2 mr-60 items-center bg-slate-50 px-4 py-2">
         <div className="flex-1">
           <div className="mb-4 flex items-center space-x-4">
             <div className="flex items-center">
@@ -63,8 +123,7 @@ const NewItem2 = () => {
                 <input
                   type="radio"
                   value="Goods"
-                  checked={type === "Goods"}
-                  onChange={() => setType("Goods")}
+                  {...register("type")}
                   className="mr-2 text-sm"
                 />
                 Goods
@@ -73,8 +132,7 @@ const NewItem2 = () => {
                 <input
                   type="radio"
                   value="Service"
-                  checked={type === "Service"}
-                  onChange={() => setType("Service")}
+                  {...register("type")}
                   className="mr-2 text-sm"
                 />
                 Service
@@ -87,12 +145,10 @@ const NewItem2 = () => {
             </label>
             <input
               id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              {...register("name")}
               className="w-full ml-2 p-1 border border-slate-300 rounded hover:border-blue-400"
-              required
             />
+            {errors.name && <span className="text-red-500">{errors.name.message}</span>}
           </div>
           <div className="mb-4 flex items-center space-x-3">
             <label htmlFor="sku" className="block mb-2 mr-4 text-sm ">
@@ -100,9 +156,7 @@ const NewItem2 = () => {
             </label>
             <input
               id="sku"
-              type="text"
-              value={sku}
-              onChange={(e) => setSku(e.target.value)}
+              {...register("sku")}
               className="w-full ml-4 p-1 border border-slate-300 rounded hover:border-blue-400"
             />
           </div>
@@ -115,23 +169,21 @@ const NewItem2 = () => {
             </label>
             <select
               id="unit"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
+              {...register("unit")}
               className="w-full p-1 border rounded border-slate-300 hover:border-blue-400"
-              required
             >
-              <option className="text-sm" value="">
-                Select or type to add
-              </option>
-              {/* Add more options as needed */}
+              <option className="text-sm" value="">Select or type to add</option>
+              <option value="piece">Piece</option>
+              <option value="kg">Kilogram</option>
+              <option value="liter">Liter</option>
             </select>
+            {errors.unit && <span className="text-red-500">{errors.unit.message}</span>}
           </div>
           <div className="mb-4 justify-center">
             <label className="flex items-center text-sm justify-center">
               <input
                 type="checkbox"
-                checked={returnable}
-                onChange={(e) => setReturnable(e.target.checked)}
+                {...register("returnable")}
                 className="mr-2"
               />
               Returnable Item
@@ -153,11 +205,11 @@ const NewItem2 = () => {
           <p className="text-sm text-gray-500 mt-2">
             You can add up to 15 images, each not exceeding 5 MB.
           </p>
-          {images.length > 0 && (
+          {watch('images') && watch('images').length > 0 && (
             <div className="mt-4">
               <h3 className="font-semibold">Uploaded Images:</h3>
               <ul>
-                {images.map((image, index) => (
+                {watch('images').map((image, index) => (
                   <li key={index}>{image.name}</li>
                 ))}
               </ul>
@@ -165,16 +217,17 @@ const NewItem2 = () => {
           )}
         </div>
       </div>
-      <div className="max-w-5xl  p-6 space-y-6 border-b pb-10 border-slate-300">
+      <div className="max-w-5xl p-6 space-y-6 border-b pb-10 border-slate-300">
         <div className="grid grid-cols-2 gap-6">
           <div className="flex items-center">
-            <div className=" items-center space-x-2 justify-center">
+            <div className="items-center space-x-2 justify-center">
               <Label htmlFor="dimensions">Dimensions</Label>
               <p className="text-xs text-gray-500">(Length X Width X Height)</p>
             </div>
             <Input
               id="length"
               placeholder="L"
+              {...register("dimensions.length")}
               className="w-1/6 h-8 border-slate-400 rounded hover:border-blue-300"
             />
             <span className="flex items-center">
@@ -183,6 +236,7 @@ const NewItem2 = () => {
             <Input
               id="width"
               placeholder="W"
+              {...register("dimensions.width")}
               className="w-1/6 h-8 border-slate-400 rounded hover:border-blue-300"
             />
             <span className="flex items-center">
@@ -191,17 +245,24 @@ const NewItem2 = () => {
             <Input
               id="height"
               placeholder="H"
+              {...register("dimensions.height")}
               className="w-1/6 h-8 border-slate-400 rounded hover:border-blue-300"
             />
-            <Select>
-              <SelectTrigger className="w-[80px] h-8 ml-1 border-slate-400 rounded hover:border-blue-300">
-                <SelectValue placeholder="Unit" />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-100">
-                <SelectItem value="cm">cm</SelectItem>
-                <SelectItem value="in">in</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              name="dimensions.unit"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="w-[80px] h-8 ml-1 border-slate-400 rounded hover:border-blue-300">
+                    <SelectValue placeholder="Unit" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-100">
+                    <SelectItem value="cm">cm</SelectItem>
+                    <SelectItem value="in">in</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
           <div className="flex space-x-2 items-center">
             <Label htmlFor="weight">Weight</Label>
@@ -209,51 +270,50 @@ const NewItem2 = () => {
               <Input
                 id="weight"
                 placeholder="Weight"
-                className="w-full h-8 border-slate-400 rounded hover:border-blue-300 "
+                {...register("weight.value")}
+                className="w-full h-8 border-slate-400 rounded hover:border-blue-300"
               />
-              <Select>
-                <SelectTrigger className="w-[80px] h-8  border-slate-400 rounded hover:border-blue-300">
-                  <SelectValue placeholder="Unit" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-100">
-                  <SelectItem value="kg">kg</SelectItem>
-                  <SelectItem value="g">g</SelectItem>
-                  <SelectItem value="lb">lb</SelectItem>
-                  <SelectItem value="oz">oz</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="weight.unit"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="w-[80px] h-8 border-slate-400 rounded hover:border-blue-300">
+                      <SelectValue placeholder="Unit" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-100">
+                      <SelectItem value="kg">kg</SelectItem>
+                      <SelectItem value="g">g</SelectItem>
+                      <SelectItem value="lb">lb</SelectItem>
+                      <SelectItem value="oz">oz</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2 flex items-center">
-            <Label htmlFor="manufacturer">Manufacturer</Label>
-            <Select>
-              <SelectTrigger
-                id="manufacturer"
-                className="w-full h-8 ml-2 border-slate-400 rounded hover:border-blue-300 "
-              >
-                <SelectValue placeholder="Select or Add Manufacturer" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="add">Add Manufacturer</SelectItem>
-              </SelectContent>
-            </Select>
+          <label htmlFor="name" className="block mb-2 text-sm ">
+              Manufacturer
+            </label>
+            <input
+              id="manufacturer"
+              {...register("manufacturer")}
+              className="w-full ml-2 p-1 border border-slate-300 rounded hover:border-blue-400"
+            />
           </div>
           <div className="space-y-2 flex items-center">
-            <Label htmlFor="brand">Brand</Label>
-            <Select>
-              <SelectTrigger
-                id="brand"
-                className="w-full h-8 ml-2 border-slate-400 rounded hover:border-blue-300 "
-              >
-                <SelectValue placeholder="Select or Add Brand" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="add">Add Brand</SelectItem>
-              </SelectContent>
-            </Select>
+          <label htmlFor="name" className="block mb-2 text-sm ">
+              Brand
+            </label>
+            <input
+              id="brand"
+              {...register("brand")}
+              className="w-full ml-2 p-1 border border-slate-300 rounded hover:border-blue-400"
+            />
           </div>
         </div>
       </div>
@@ -287,6 +347,7 @@ const NewItem2 = () => {
                 </span>
                 <Input
                   id="sellingPrice"
+                  {...register("sellingPrice")}
                   className="rounded border-slate-300 hover:border-blue-300"
                 />
               </div>
@@ -308,33 +369,46 @@ const NewItem2 = () => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <Select>
-                <SelectTrigger className="w-2/3 rounded border-slate-300 hover:border-blue-300 ">
-                  <SelectValue placeholder="[ 3657 ] Sales" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="3657">[ 3657 ] Sales</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="salesAccount"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="w-2/3 rounded border-slate-300 hover:border-blue-300 ">
+                      <SelectValue placeholder="[ 3657 ] Sales" />
+                    </SelectTrigger>
+                    <SelectContent className='bg-slate-50'>
+                      <SelectItem value="3657">[ 3657 ] Sales</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div className="flex justify-between items-center">
               <Label htmlFor="salesDescription">Description</Label>
               <Textarea
                 id="salesDescription"
-                className=" rounded border-slate-300 w-2/3 hover:border-blue-300"
+                {...register("salesDescription")}
+                className="rounded border-slate-300 w-2/3 hover:border-blue-300"
               />
             </div>
             <div className="flex justify-between items-center">
               <Label htmlFor="salesTax">Tax</Label>
-              <Select>
-                <SelectTrigger className=" rounded border-slate-300 w-2/3 hover:border-blue-300">
-                  <SelectValue placeholder="Select a Tax" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="tax1">Tax 1</SelectItem>
-                  <SelectItem value="tax2">Tax 2</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="salesTax"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="w-2/3 rounded border-slate-300 hover:border-blue-300">
+                      <SelectValue placeholder="Select a Tax" />
+                    </SelectTrigger>
+                    <SelectContent className='bg-slate-50'>
+                      <SelectItem value="tax1">Tax 1</SelectItem>
+                      <SelectItem value="tax2">Tax 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </CardContent>
         </Card>
@@ -367,6 +441,7 @@ const NewItem2 = () => {
                 </span>
                 <Input
                   id="costPrice"
+                  {...register("costPrice")}
                   className="rounded border-slate-300 hover:border-blue-300"
                 />
               </div>
@@ -388,63 +463,90 @@ const NewItem2 = () => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <Select>
-                <SelectTrigger className="w-2/3 rounded border-slate-300 hover:border-blue-300 ">
-                  <SelectValue placeholder="[ 93638 ] Cost of Goods Sold" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="93638">
-                    [ 93638 ] Cost of Goods Sold
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="purchaseAccount"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="w-2/3 rounded border-slate-300 hover:border-blue-300 ">
+                      <SelectValue placeholder="[ 93638 ] Cost of Goods Sold" />
+                    </SelectTrigger>
+                    <SelectContent className='bg-slate-50'>
+                      <SelectItem value="93638">
+                        [ 93638 ] Cost of Goods Sold
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div className="flex justify-between items-center">
               <Label htmlFor="purchaseDescription">Description</Label>
               <Textarea
                 id="purchaseDescription"
-                className="w-2/3 rounded border-slate-300 hover:border-blue-300 "
+                {...register("purchaseDescription")}
+                className="w-2/3 rounded border-slate-300 hover:border-blue-300"
               />
             </div>
             <div className="flex justify-between items-center">
               <Label htmlFor="purchaseTax">Tax</Label>
-              <Select>
-                <SelectTrigger className="w-2/3 rounded border-slate-300 hover:border-blue-300 ">
-                  <SelectValue placeholder="Select a Tax" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="tax1">Tax 1</SelectItem>
-                  <SelectItem value="tax2">Tax 2</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="purchaseTax"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="w-2/3 rounded border-slate-300 hover:border-blue-300 ">
+                      <SelectValue placeholder="Select a Tax" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="tax1">Tax 1</SelectItem>
+                      <SelectItem value="tax2">Tax 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div className="flex justify-between items-center">
               <Label htmlFor="preferredVendor">Preferred Vendor</Label>
-              <Select>
-                <SelectTrigger className="w-2/3 rounded border-slate-300 hover:border-blue-300 ">
-                  <SelectValue placeholder="Select a Vendor" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="vendor1">Vendor 1</SelectItem>
-                  <SelectItem value="vendor2">Vendor 2</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="preferredVendor"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="w-2/3 rounded border-slate-300 hover:border-blue-300 ">
+                      <SelectValue placeholder="Select a Vendor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="vendor1">Vendor 1</SelectItem>
+                      <SelectItem value="vendor2">Vendor 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </CardContent>
         </Card>
-
-        
       </div>
-      <div className="  bg-slate-50 border-t border-gray-200 p-4 flex justify-start space-x-4 mt-10 max-w-5xl">
-        <Button variant="outline" className="rounded border-blue-600 text-blue-600" onClick={handleCancel}>
+      <div className="bg-slate-50 border-t border-gray-200 p-4 flex justify-start space-x-4 mt-10 max-w-5xl">
+        <Button 
+          type="button"
+          variant="outline" 
+          className="rounded border-blue-600 text-blue-600" 
+          onClick={handleCancel}
+        >
           Cancel
         </Button>
-        <Button variant="default" className="rounded bg-blue-600 text-slate-100" onClick={handleSave}>
-          Save
+        <Button 
+          type="submit" 
+          variant="default" 
+          className="rounded bg-blue-600 text-slate-100" 
+          disabled={isLoading}
+          onClick={handleButtonClick}
+        >
+          {isLoading ? 'Saving...' : 'Save'}
         </Button>
       </div>
-      
-    </>
+    </form>
   );
 };
 
