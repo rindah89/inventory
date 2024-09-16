@@ -3,21 +3,22 @@
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowUpDown, Search, ChevronDown, X } from 'lucide-react';
+import { ArrowUpDown, Search, ChevronDown, X, MoreHorizontal } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { prisma } from "../lib/db";
 
-const itemsData = [
-  { id: 1, name: "Coffee Table", sku: "Item 1 sku", type: "Service", description: "A sleek, modern coffee table with a glas...", rate: 8127.00 },
-  { id: 2, name: "Storage Cabinet", sku: "Item 2 sku", type: "Service", description: "A versatile storage cabinet with adjusta...", rate: 3120.00 },
-  { id: 3, name: "Executive Office Desk", sku: "Item 3 sku", type: "Service", description: "", rate: null },
-  { id: 4, name: "Queen Size Bed", sku: "Item 4 sku", type: "Service", description: "", rate: null },
-  { id: 5, name: "Executive Office Desk", sku: "Item 5 sku", type: "Service", description: "A spacious executive desk with storage...", rate: 6392.00 },
-  { id: 6, name: "Queen Size Bed", sku: "Item 6 sku", type: "Service", description: "Mid-century wooden double bed. Scan...", rate: 4579.00 },
-];
 
-const ItemsTable = () => {
-  const [selectedItems, setSelectedItems] = useState([]);
+async function getData() {
+  const itemsData = await prisma.product.findMany({
+    orderBy:{
+      createdAT: "desc",
+    },
+  });
+
+  return itemsData;
+}
+
 
   const handleItemSelect = (itemId) => {
     setSelectedItems(prev => 
@@ -55,6 +56,12 @@ const ItemsTable = () => {
     </div>
   );
 
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+export default async function itemsTable(){
+ const  itemsData = await getData();
+
   return (
     <div className="container mx-auto py-10">
       {selectedItems.length > 0 && <SelectionHeader />}
@@ -67,8 +74,8 @@ const ItemsTable = () => {
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
-            <TableHead className="w-[3%]"></TableHead>
-            <TableHead className="w-[20%]">
+            <TableHead className="w-[8%]">IMAGE</TableHead>
+            <TableHead className="w-[25%]">
               NAME
               <Button variant="ghost" size="sm" className="ml-2">
                 <ArrowUpDown className="h-4 w-4" />
@@ -76,11 +83,12 @@ const ItemsTable = () => {
             </TableHead>
             <TableHead className="w-[15%]">SKU</TableHead>
             <TableHead className="w-[10%]">TYPE</TableHead>
-            <TableHead className="w-[30%]">DESCRIPTION</TableHead>
-            <TableHead className="w-[15%] text-right">RATE</TableHead>
-            <TableHead className="w-[4%]">
+            <TableHead className="w-[24%]">DESCRIPTION</TableHead>
+            <TableHead className="w-[12%] text-right">RATE</TableHead>
+            <TableHead className="w-[3%]">
               <Search className="h-4 w-4" />
             </TableHead>
+            <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -93,14 +101,40 @@ const ItemsTable = () => {
                 />
               </TableCell>
               <TableCell>
-                <div className="w-8 h-8 bg-gray-200 rounded"></div>
+                {item.images && item.images.length > 0 ? (
+                  <Image 
+                    src={item.images[0]} 
+                    alt={item.name} 
+                    width={50} 
+                    height={50} 
+                    className="object-cover rounded"
+                  />
+                ) : (
+                  <div className="w-[50px] h-[50px] bg-gray-200 rounded"></div>
+                )}
               </TableCell>
               <TableCell className="font-medium text-blue-600">{item.name}</TableCell>
-              <TableCell className="text-green-600">{item.sku}</TableCell>
+              <TableCell className="text-green-600">{item.sku || 'N/A'}</TableCell>
               <TableCell>{item.type}</TableCell>
-              <TableCell className="text-gray-500">{item.description}</TableCell>
-              <TableCell className="text-right">{item.rate ? `$${item.rate.toFixed(2)}` : ''}</TableCell>
-              <TableCell></TableCell>
+              <TableCell className="text-gray-500">{item.salesDescription || 'No description'}</TableCell>
+              <TableCell className="text-right">{item.sellingPrice ? `$${item.sellingPrice.toFixed(2)}` : 'N/A'}</TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="icon" variant="ghost">
+                      <MoreHorizontal className='h-4 w-4'/>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator/>
+                  <DropdownMenuItem asChild>
+                    <Link href={`/dashboard/inventory/items/${item.id}`}>Edit</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenu>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -109,4 +143,3 @@ const ItemsTable = () => {
   );
 };
 
-export default ItemsTable;

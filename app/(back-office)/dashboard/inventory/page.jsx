@@ -1,32 +1,89 @@
-'use client'
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../../components/ui/table";
+import { Button } from "../../../../components/ui/button";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "../../../../components/ui/dropdown-menu";
+import { ArrowUpDown, Search, MoreHorizontal } from 'lucide-react';
+import { prisma } from "../../../lib/db";
 
-import React, { useState } from 'react';
-import FixedHeader from '../../../../components/dashboard/fixed-header';
-import ProductDisplay from '../../../../components/dashboard/ProductDisplay';
 
-const itemsData = [
-  { id: 1, name: "Area Rug", sku: "Item 1 sku", type: "Digital_service", description: "A soft, high-quality area rug to a...", rate: 3857.00 },
-  { id: 2, name: "Coffee Table", sku: "Item 2 sku", type: "Digital_service", description: "A sleek, modern coffee table wit...", rate: 2449.00 },
-  { id: 3, name: "Coffee Table", sku: "Item 3 sku", type: "Digital_service", description: "A sleek, modern coffee table with a glas...", rate: 355.00 },
-  { id: 4, name: "Dining Table and Chairs Set", sku: "Item 4 sku", type: "Digital_service", description: "A complete dining set with table and chairs", rate: 310.00 },
-  { id: 5, name: "Area Rug", sku: "Item 5 sku", type: "Digital_service", description: "A soft, high-quality area rug to a...", rate: 8316.00 },
-  { id: 6, name: "Executive Office Desk", sku: "Item 6 sku", type: "Digital_service", description: "A spacious executive desk with s...", rate: 1966.00 },
-  { id: 7, name: "Sofa", sku: "Item 7 sku", type: "Goods", description: "A comfortable, modern sofa with...", rate: 2120.00 },
-  { id: 8, name: "Queen Size Bed", sku: "Item 8 sku", type: "Goods", description: "Mid-century wooden double bed...", rate: 185.00 },
-];
+async function getData() {
+  const itemsData = await prisma.item.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-export default function Inventory() {
-  const [view, setView] = useState('list');
+  return itemsData;
+}
+
+export default async function ItemsTable() {
+  const itemsData = await getData();
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <FixedHeader view={view} setView={setView} />
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">Inventory</h1>
-        <div className="bg-white rounded-lg shadow p-6">
-          <ProductDisplay items={itemsData} view={view} />
-        </div>
-      </main>
+    <div className="container mx-auto py-10">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[15%]">IMAGE</TableHead>
+            <TableHead className="w-[15%]">
+              NAME
+              <Button variant="ghost" size="sm" className="ml-2">
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead className="w-[15%]">SKU</TableHead>
+            <TableHead className="w-[15%]">TYPE</TableHead>
+            <TableHead className="w-[15%]">DESCRIPTION</TableHead>
+            <TableHead className="w-[15%]">PRICE</TableHead>
+            <TableHead className="text-end"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {itemsData.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell>
+                {item.images && item.images.length > 0 ? (
+                  <Image 
+                    src={item.images[0]} 
+                    alt={item.name} 
+                    width={50} 
+                    height={50} 
+                    className="object-cover rounded"
+                  />
+                ) : (
+                  <div className="w-[50px] h-[50px] bg-gray-200 rounded"></div>
+                )}
+              </TableCell>
+              <TableCell className="font-medium text-blue-600">{item.name}</TableCell>
+              <TableCell className="text-green-600">{item.sku || 'N/A'}</TableCell>
+              <TableCell>{item.type}</TableCell>
+              <TableCell className="text-gray-500">{item.salesDescription || 'No description'}</TableCell>
+              <TableCell >{item.sellingPrice ? `CFA ${item.sellingPrice}` : 'N/A'}</TableCell>
+              <TableCell className="text-end">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="icon" variant="ghost">
+                      <MoreHorizontal className='h-4 w-4'/>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className='bg-slate-50'>
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator/>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/inventory/items/${item.id}`}>Edit</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }

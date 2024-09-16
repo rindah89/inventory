@@ -14,47 +14,29 @@ datasource db {
 }
 
 model Item {
-  id            String         @id @default(uuid())
-  name          String
-  sku           String?        @unique
-  type          String         // 'Goods' or 'Service'
-  description   String?
-  unit          String
-  rate          Float
-  returnable    Boolean        @default(false)
-  dimensions    String?
-  weight        String?
-  brand         String?
-  manufacturer  String?
-  mpn           String?        // Manufacturer Part Number
-  upc           String?        // Universal Product Code
-  isbn          String?        // International Standard Book Number
-  ean           String?        // European Article Number
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  itemGroups    ItemGroup[]    @relation("ItemToItemGroup")
-  adjustments   Adjustment[]
-}
-
-model ItemGroup {
-  id          String    @id @default(uuid())
+  id          String   @id @default(cuid())
+  type        String
   name        String
-  description String?
-  items       Item[]    @relation("ItemToItemGroup")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  images      String[]
+
+  sku         String?
+  unit        String
+  returnable  Boolean 
+  dimensions  Json?
+  weight      Float?
+  weightUnit  String?
+  manufacturer String?
+  brand       String?
+  sellingPrice Float
+  salesAccount String
+  salesDescription String?
+  salesTax    String?
+  costPrice   Float
+  purchaseAccount String
+  purchaseDescription String?
+  purchaseTax String?
+  preferredVendor String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-model Adjustment {
-  id          String    @id @default(uuid())
-  mode        String    // 'Add Stock' or 'Remove Stock'
-  date        DateTime
-  referenceNo String?
-  reason      String?
-  description String?
-  item        Item      @relation(fields: [itemId], references: [id])
-  itemId      String
-  quantity    Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-}

@@ -1,9 +1,10 @@
+'use client'
 import React, { useState } from "react";
 import { useForm } from "@conform-to/react";
 import { useFormState } from "react-dom";
 import { parseWithZod } from "@conform-to/zod";
 import { ItemSchema } from "../../app/lib/zodSchemas";
-import { createItem } from "../../app/actions/itemActions";
+import { updateItem } from "../../app/actions/itemActions";
 import { UploadDropzone } from "../../app/utils/uploadthing";
 import { CircleHelp, XIcon } from "lucide-react";
 import Image from "next/image";
@@ -21,17 +22,10 @@ import { Textarea } from "../ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
 
-
-const NewItem2 = () => {
-  const [images, setImages] = useState([]);
-  const [lastResult, action] = useFormState(createItem, undefined);
+export default function EditItem({ initialData }) {
+  const [images, setImages] = useState(initialData.images || []);
+  const [lastResult, action] = useFormState(updateItem, undefined);
 
   const [form, fields] = useForm({
     lastResult,
@@ -40,17 +34,18 @@ const NewItem2 = () => {
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
+    defaultValue: initialData,
   });
 
- 
   const handleDelete = (index) => {
     setImages(images.filter((_, i) => i !== index));
   };
 
-  return (
-    <form id={form.id} onSubmit={form.onSubmit} action={action}>
+    return(
+<form id={form.id} onSubmit={form.onSubmit} action={action}>
       <Card className="max-w-5xl">
         <CardHeader>
+            Edit Product
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center space-x-4">
@@ -394,4 +389,4 @@ const NewItem2 = () => {
   );
 };
 
-export default NewItem2;
+
